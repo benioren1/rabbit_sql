@@ -11,8 +11,9 @@ def add_data(data):
     product_name = new_data[0]
     quantity_to_deduct = int(new_data[1])
     product = session.query(Inventory).filter_by(item_name=product_name).first()
+    print(product.quantity)
     if product:
-        if product.quantity >= quantity_to_deduct:
+        if (product.quantity - quantity_to_deduct)>=0:
             product.quantity -= quantity_to_deduct
             session.commit()
             print(f"Updated {product_name} quantity to {product.quantity}")
@@ -20,9 +21,6 @@ def add_data(data):
             print(f"Not enough quantity for {product_name}. Available: {product.quantity}")
     else:
         print(f"{product_name} not found in inventory.")
-
-
-
 
 def callback(ch, method, properties, body):
     message = body.decode()
@@ -42,18 +40,18 @@ channel.exchange_declare(exchange='moshe', exchange_type='direct')
 
 
 channel.queue_declare(queue='inventory')
-channel.queue_declare(queue='email')
-channel.queue_declare(queue='shipments')
+# channel.queue_declare(queue='email')
+# channel.queue_declare(queue='shipments')
 
 
 channel.queue_bind(exchange='moshe', queue='inventory', routing_key='inventory')
-channel.queue_bind(exchange='moshe', queue='email', routing_key='email')
-channel.queue_bind(exchange='moshe', queue='shipments', routing_key='shipments')
+# channel.queue_bind(exchange='moshe', queue='email', routing_key='email')
+# channel.queue_bind(exchange='moshe', queue='shipments', routing_key='shipments')
 
 
 channel.basic_consume(queue='inventory', on_message_callback=callback, auto_ack=False)
-channel.basic_consume(queue='email', on_message_callback=callback, auto_ack=False)
-channel.basic_consume(queue='shipments', on_message_callback=callback, auto_ack=False)
+# channel.basic_consume(queue='email', on_message_callback=callback, auto_ack=False)
+# channel.basic_consume(queue='shipments', on_message_callback=callback, auto_ack=False)
 
 print(' [*] Waiting for messages. To exit press CTRL+C')
 channel.start_consuming()

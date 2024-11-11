@@ -38,12 +38,8 @@ def buy_route():
         if not item:
             return jsonify({'error': 'Item not found in inventory'}), 404
 
-        # עדכון הכמות במלאי
-        item.quantity -= data['quantity']
-        session.commit()
-
         # שליחה ל-RabbitMQ אם צריך (אם יש צורך)
-        publish_message(data['item'], f"{data['item']} {data['quantity']} {data['email']}")
+        publish_message(data['item'], f"{data['item']} {data['qountity']} {data['email']}")
 
         return jsonify({'message': 'Purchase successful'}), 200  # מחזיר הודעה שהרכישה הצליחה
     except Exception as e:
